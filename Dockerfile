@@ -11,13 +11,16 @@ RUN mv curl-8.8.0 curl
 RUN mv tcpdump-4.99.4 tcpdump
 RUN mv pv-1.8.12 pv
 ENV CC=clang
+ENV CFLAGS="-Os -march=native -flto -fdata-sections -ffunction-sections -fno-unwind-tables -fno-asynchronous-unwind-tables"
+ENV LDFLAGS="-static -Wl,--gc-sections -Wl,-Bsymbolic -Wl,-s"
+ENV PKG_CONFIG="pkg-config --static"
 WORKDIR /curl
-RUN ./configure LDFLAGS="-static" PKG_CONFIG="pkg-config --static" --with-bearssl --enable-optimize --enable-static --disable-shared --disable-imap --disable-smtp --disable-gopher --disable-unix-sockets --disable-docs --disable-manual --disable-ldap --disable-ldaps --disable-dict --disable-file --disable-telnet --disable-tftp --disable-pop3 --disable-threaded-resolver --disable-ipv6 --disable-smb --disable-ntlm-wb --disable-mqtt --disable-tls-srp --disable-aws --without-libpsl --without-brotli --without-libidn2 --without-librtmp --without-libssh2 --without-nss --without-zstd --without-libgsasl --without-winidn --without-msh3 --without-zsh-functions-dir --without-fish-functions-dir
+RUN ./configure --with-bearssl --enable-optimize --enable-static --disable-shared --disable-imap --disable-smtp --disable-gopher --disable-unix-sockets --disable-docs --disable-manual --disable-ldap --disable-ldaps --disable-dict --disable-file --disable-telnet --disable-tftp --disable-pop3 --disable-threaded-resolver --disable-ipv6 --disable-smb --disable-mqtt --disable-tls-srp --disable-aws --without-libpsl --without-brotli --without-libidn2 --without-librtmp --without-libssh2 --without-zstd --without-libgsasl --without-winidn --without-msh3 --without-zsh-functions-dir --without-fish-functions-dir
 RUN make LDFLAGS="-static -all-static"
 RUN strip src/curl
 WORKDIR /tcpdump
-RUN ./configure LDFLAGS="-static" PKG_CONFIG="pkg-config --static" --enable-static --disable-shared --enable-optimize
-RUN make LDFLAGS="-static"
+RUN ./configure
+RUN make
 RUN strip tcpdump
 WORKDIR /pv
 RUN ./configure
