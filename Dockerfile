@@ -1,6 +1,6 @@
 FROM alpine:latest AS build
 RUN apk update
-RUN apk add build-base perl bearssl-static bearssl-libs bearssl-dev libpcap-dev clang
+RUN apk add build-base perl bearssl-static bearssl-libs bearssl-dev libpcap-dev ca-certificates clang
 RUN wget https://curl.se/download/curl-8.8.0.tar.gz
 RUN wget https://www.tcpdump.org/release/tcpdump-4.99.4.tar.xz
 RUN wget https://www.ivarch.com/programs/sources/pv-1.8.12.tar.gz
@@ -28,6 +28,7 @@ RUN make
 RUN strip pv
 
 FROM busybox:musl AS runtime
+COPY --from=build /etc/ssl/certs /etc/ssl/certs
 COPY --from=build /curl/src/curl /bin/curl
 COPY --from=build /tcpdump/tcpdump /bin/tcpdump
 COPY --from=build /pv/pv /bin/pv
